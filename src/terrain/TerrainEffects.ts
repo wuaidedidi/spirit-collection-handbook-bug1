@@ -9,6 +9,8 @@ export class TerrainEffects {
   public onTerrainDamage: ((type: 'lava' | 'trap' | 'falling_rock') => void) | null = null;
 
   update(dt: number, player: Player, chunkManager: ChunkManager): void {
+    if (!player.isAlive) return;
+
     const terrain = chunkManager.getTerrainAt(player.x, player.y);
     if (!terrain) return;
 
