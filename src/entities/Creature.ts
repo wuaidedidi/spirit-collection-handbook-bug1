@@ -1,15 +1,10 @@
-import { Entity } from './Entity';
-import { Player } from './Player';
-import { Vector2 } from '../utils/math';
-import { randomInt, randomRange } from '../utils/math';
-import {
-  CreatureType,
-  CREATURE_CONFIG,
-  CREATURE_NAMES,
-  CREATURE_ALERT_RANGE,
-} from '../utils/constants';
+import { Entity } from "./Entity";
+import { Player } from "./Player";
+import { Vector2 } from "../utils/math";
+import { randomInt, randomRange } from "../utils/math";
+import { CreatureType, CREATURE_CONFIG, CREATURE_NAMES, CREATURE_ALERT_RANGE } from "../utils/constants";
 
-export type CreatureAIState = 'idle' | 'patrol' | 'chase' | 'attack' | 'hurt' | 'dead';
+export type CreatureAIState = "idle" | "patrol" | "chase" | "attack" | "hurt" | "dead";
 
 export class Creature extends Entity {
   public creatureType: CreatureType;
@@ -30,8 +25,8 @@ export class Creature extends Entity {
   constructor(creatureType: CreatureType, x: number, y: number) {
     super(x, y, 16, 16);
     this.creatureType = creatureType;
-    this.aiState = 'idle';
-    this.previousAIState = 'idle';
+    this.aiState = "idle";
+    this.previousAIState = "idle";
     this.isCaptured = false;
     this.isPet = false;
     this.petOwner = null;
@@ -59,11 +54,17 @@ export class Creature extends Entity {
     console.log(`[Creature] ${name} spawned: HP=${hp}, ATK=${atk}`);
   }
 
-  update(dt: number, playerX: number = 0, playerY: number = 0, playerEntity: Player | null = null): void {
+  update(
+    dt: number,
+    playerX: number = 0,
+    playerY: number = 0,
+    playerEntity: Player | null = null,
+    pets: Creature[] = [],
+  ): void {
     super.update(dt);
 
     if (!this.isAlive) {
-      this.aiState = 'dead';
+      this.aiState = "dead";
       return;
     }
 
@@ -71,7 +72,7 @@ export class Creature extends Entity {
     if (this.attackCooldown < 0) this.attackCooldown = 0;
 
     // Jelly special: randomize speed every 2 seconds
-    if (this.creatureType === 'jelly') {
+    if (this.creatureType === "jelly") {
       this.jellySpeedTimer -= dt;
       if (this.jellySpeedTimer <= 0) {
         this.jellySpeedTimer = 2;
@@ -84,20 +85,39 @@ export class Creature extends Entity {
       return;
     }
 
-    this.updateWildAI(dt, playerX, playerY, playerEntity);
+    this.updateWildAI(dt, playerX, playerY, playerEntity, pets);
   }
 
-  private updateWildAI(dt: number, playerX: number, playerY: number, playerEntity: Player | null): void {
+  private updateWildAI(
+    dt: number,
+    playerX: number,
+    playerY: number,
+    playerEntity: Player | null,
+    pets: Creature[],
+  ): void {
     const distToPlayer = this.distanceToPoint(playerX, playerY);
 
+    // Find nearest target (player or pet)
+    let nearestTarget: Player | Creature | null = playerEntity && playerEntity.isAlive ? playerEntity : null;
+    let nearestDist = distToPlayer;
+
+    for (const pet of pets) {
+      if (!pet.isPet || !pet.isAlive) continue;
+      const distToPet = this.distanceToPoint(pet.x, pet.y);
+      if (distToPet < nearestDist) {
+        nearestDist = distToPet;
+        nearestTarget = pet;
+      }
+    }
+
     switch (this.aiState) {
-      case 'idle':
-        this.currentAnimation = 'idle';
+      case "idle":
+        this.currentAnimation = "idle";
         this.stateTimer -= dt;
         // Random chance to patrol
         if (this.stateTimer <= 0) {
           if (Math.random() < 0.3) {
-            this.aiState = 'patrol';
+            this.aiState = "patrol";
             this.patrolTarget = {
               x: this.spawnX + randomRange(-100, 100),
               y: this.spawnY + randomRange(-100, 100),
@@ -107,62 +127,64 @@ export class Creature extends Entity {
             this.stateTimer = randomRange(1, 3);
           }
         }
-        // Check if player is in alert range
-        if (distToPlayer <= CREATURE_ALERT_RANGE) {
-          this.aiState = 'chase';
+        // Check if player or pet is in alert range
+        if (nearestDist <= CREATURE_ALERT_RANGE) {
+          this.aiState = "chase";
           this.stateTimer = 0;
         }
         break;
 
-      case 'patrol':
-        this.currentAnimation = 'move';
+      case "patrol":
+        this.currentAnimation = "move";
         if (this.patrolTarget) {
           this.moveToward(this.patrolTarget.x, this.patrolTarget.y, dt);
           const distToTarget = this.distanceToPoint(this.patrolTarget.x, this.patrolTarget.y);
           if (distToTarget < 4) {
-            this.aiState = 'idle';
+            this.aiState = "idle";
             this.patrolTarget = null;
             this.stateTimer = randomRange(1, 3);
           }
         }
         this.stateTimer -= dt;
         if (this.stateTimer <= 0) {
-          this.aiState = 'idle';
+          this.aiState = "idle";
           this.patrolTarget = null;
           this.stateTimer = randomRange(1, 3);
         }
-        // Check if player is in alert range
-        if (distToPlayer <= CREATURE_ALERT_RANGE) {
-          this.aiState = 'chase';
+        // Check if player or pet is in alert range
+        if (nearestDist <= CREATURE_ALERT_RANGE) {
+          this.aiState = "chase";
           this.patrolTarget = null;
           this.stateTimer = 0;
         }
         break;
 
-      case 'chase':
-        this.currentAnimation = 'move';
-        this.moveToward(playerX, playerY, dt);
-        if (distToPlayer <= this.stats.attackRange) {
-          this.aiState = 'attack';
+      case "chase":
+        this.currentAnimation = "move";
+        if (nearestTarget) {
+          this.moveToward(nearestTarget.x, nearestTarget.y, dt);
+        }
+        if (nearestDist <= this.stats.attackRange) {
+          this.aiState = "attack";
           this.stateTimer = 0;
         }
-        // Give up if player is too far
-        if (distToPlayer > 300) {
-          this.aiState = 'idle';
+        // Give up if target is too far
+        if (nearestDist > 300) {
+          this.aiState = "idle";
           this.stateTimer = randomRange(1, 3);
         }
         break;
 
-      case 'attack':
-        this.currentAnimation = 'attack';
-        if (distToPlayer > this.stats.attackRange) {
-          this.aiState = 'chase';
+      case "attack":
+        this.currentAnimation = "attack";
+        if (nearestDist > this.stats.attackRange) {
+          this.aiState = "chase";
           break;
         }
-        if (this.attackCooldown <= 0 && playerEntity && playerEntity.isAlive) {
-          playerEntity.takeDamage(this.stats.attack);
+        if (this.attackCooldown <= 0 && nearestTarget && nearestTarget.isAlive) {
+          nearestTarget.takeDamage(this.stats.attack);
           if (this.onDamageDealt) {
-            this.onDamageDealt(playerEntity.x, playerEntity.y - 20, this.stats.attack);
+            this.onDamageDealt(nearestTarget.x, nearestTarget.y - 20, this.stats.attack);
           }
           this.attackCooldown = this.stats.attackInterval;
           this.animationFrame = 0;
@@ -170,16 +192,16 @@ export class Creature extends Entity {
         }
         break;
 
-      case 'hurt':
-        this.currentAnimation = 'hurt';
+      case "hurt":
+        this.currentAnimation = "hurt";
         this.stateTimer -= dt;
         if (this.stateTimer <= 0) {
           this.aiState = this.previousAIState;
         }
         break;
 
-      case 'dead':
-        this.currentAnimation = 'die';
+      case "dead":
+        this.currentAnimation = "die";
         break;
     }
   }
@@ -193,10 +215,10 @@ export class Creature extends Entity {
 
     // Follow owner if too far
     if (distToOwner > 100) {
-      this.currentAnimation = 'move';
+      this.currentAnimation = "move";
       this.moveToward(this.petOwner.x, this.petOwner.y, dt);
     } else {
-      this.currentAnimation = 'idle';
+      this.currentAnimation = "idle";
     }
   }
 
@@ -208,7 +230,7 @@ export class Creature extends Entity {
 
     const dist = this.distanceTo(target);
     if (dist <= this.stats.attackRange) {
-      this.currentAnimation = 'attack';
+      this.currentAnimation = "attack";
       if (this.attackCooldown <= 0) {
         target.takeDamage(this.stats.attack);
         if (this.onDamageDealt) {
@@ -219,23 +241,23 @@ export class Creature extends Entity {
         this.animationTimer = 0;
       }
     } else {
-      this.currentAnimation = 'move';
+      this.currentAnimation = "move";
       this.moveToward(target.x, target.y, dt);
     }
   }
 
   takeDamage(amount: number): void {
     if (!this.isAlive) return;
-    if (this.aiState !== 'hurt' && this.aiState !== 'dead') {
+    if (this.aiState !== "hurt" && this.aiState !== "dead") {
       // Always chase after being attacked (react aggressively)
-      this.previousAIState = 'chase';
+      this.previousAIState = "chase";
     }
     super.takeDamage(amount);
     if (this.isAlive) {
-      this.aiState = 'hurt';
+      this.aiState = "hurt";
       this.stateTimer = 0.3;
     } else {
-      this.aiState = 'dead';
+      this.aiState = "dead";
     }
   }
 
@@ -262,11 +284,11 @@ export class Creature extends Entity {
     return Math.sqrt(dx * dx + dy * dy);
   }
 
-  private vectorToDirection(dx: number, dy: number): 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w' | 'nw' {
-    if (dx === 0 && dy === 0) return 's';
+  private vectorToDirection(dx: number, dy: number): "n" | "ne" | "e" | "se" | "s" | "sw" | "w" | "nw" {
+    if (dx === 0 && dy === 0) return "s";
     const angle = Math.atan2(dy, dx);
     const index = Math.round(angle / (Math.PI / 4));
-    const dirMap: ('n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w' | 'nw')[] = ['e', 'se', 's', 'sw', 'w', 'nw', 'n', 'ne'];
+    const dirMap: ("n" | "ne" | "e" | "se" | "s" | "sw" | "w" | "nw")[] = ["e", "se", "s", "sw", "w", "nw", "n", "ne"];
     return dirMap[((index % 8) + 8) % 8];
   }
 }
