@@ -1,7 +1,7 @@
-import { Player } from '../entities/Player';
-import { Creature } from '../entities/Creature';
-import { Entity } from '../entities/Entity';
-import { CREATURE_ALERT_RANGE } from '../utils/constants';
+import { Player } from "../entities/Player";
+import { Creature } from "../entities/Creature";
+import { Entity } from "../entities/Entity";
+import { CREATURE_ALERT_RANGE } from "../utils/constants";
 
 export interface FloatingText {
   x: number;
@@ -20,7 +20,7 @@ export class CombatSystem {
     for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
       const ft = this.floatingTexts[i];
       ft.timer += dt;
-      ft.y += 30 * dt;
+      ft.y -= 30 * dt; // float upward
       if (ft.timer >= ft.maxTime) {
         this.floatingTexts.splice(i, 1);
       }
@@ -51,7 +51,7 @@ export class CombatSystem {
 
     // Remove dead creatures after die animation
     for (const creature of creatures) {
-      if (!creature.isAlive && creature.currentAnimation === 'die') {
+      if (!creature.isAlive && creature.currentAnimation === "die") {
         creature.update(dt);
       }
     }
@@ -59,9 +59,10 @@ export class CombatSystem {
 
   addDamageText(x: number, y: number, damage: number): void {
     this.floatingTexts.push({
-      x, y,
+      x,
+      y,
       text: `-${damage}`,
-      color: '#FF5252',
+      color: "#FF5252",
       timer: 0,
       maxTime: 1.0,
     });
@@ -69,9 +70,10 @@ export class CombatSystem {
 
   addGoldText(x: number, y: number, amount: number): void {
     this.floatingTexts.push({
-      x, y,
+      x,
+      y,
       text: `+${amount}金币`,
-      color: '#FFD700',
+      color: "#FFD700",
       timer: 0,
       maxTime: 1.5,
     });
@@ -79,7 +81,10 @@ export class CombatSystem {
 
   addText(x: number, y: number, text: string, color: string): void {
     this.floatingTexts.push({
-      x, y, text, color,
+      x,
+      y,
+      text,
+      color,
       timer: 0,
       maxTime: 1.5,
     });
