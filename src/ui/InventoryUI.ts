@@ -1,22 +1,28 @@
-import { Inventory, ItemStack } from '../systems/Inventory';
-import { SpriteAtlas } from '../assets/SpriteTypes';
-import { COLORS, HOTBAR_SIZE, BACKPACK_SIZE } from '../utils/constants';
+import { Inventory, ItemStack } from "../systems/Inventory";
+import { SpriteAtlas } from "../assets/SpriteTypes";
+import { COLORS, HOTBAR_SIZE, BACKPACK_SIZE } from "../utils/constants";
 
 export class InventoryUI {
   isOpen = false;
   private atlas: SpriteAtlas;
-  private dragItem: { source: 'backpack' | 'hotbar'; index: number; item: ItemStack } | null = null;
+  private dragItem: { source: "backpack" | "hotbar"; index: number; item: ItemStack } | null = null;
   private dragX = 0;
   private dragY = 0;
-  private hoverSlot: { type: 'backpack' | 'hotbar'; index: number } | null = null;
+  private hoverSlot: { type: "backpack" | "hotbar"; index: number } | null = null;
 
   constructor(atlas: SpriteAtlas) {
     this.atlas = atlas;
   }
 
-  toggle(): void { this.isOpen = !this.isOpen; }
-  open(): void { this.isOpen = true; }
-  close(): void { this.isOpen = false; }
+  toggle(): void {
+    this.isOpen = !this.isOpen;
+  }
+  open(): void {
+    this.isOpen = true;
+  }
+  close(): void {
+    this.isOpen = false;
+  }
 
   handleMouseDown(mx: number, my: number, inventory: Inventory, screenW: number, screenH: number): boolean {
     if (!this.isOpen) return false;
@@ -24,7 +30,7 @@ export class InventoryUI {
     const slot = this.getSlotAt(mx, my, screenW, screenH);
     if (!slot) return false;
 
-    const arr = slot.type === 'backpack' ? inventory.backpack : inventory.hotbar;
+    const arr = slot.type === "backpack" ? inventory.backpack : inventory.hotbar;
     const item = arr[slot.index];
     if (item) {
       this.dragItem = { source: slot.type, index: slot.index, item };
@@ -52,7 +58,12 @@ export class InventoryUI {
     this.dragItem = null;
   }
 
-  private getSlotAt(mx: number, my: number, screenW: number, screenH: number): { type: 'backpack' | 'hotbar'; index: number } | null {
+  private getSlotAt(
+    mx: number,
+    my: number,
+    screenW: number,
+    screenH: number,
+  ): { type: "backpack" | "hotbar"; index: number } | null {
     const slotSize = 40;
     const padding = 4;
 
@@ -71,7 +82,7 @@ export class InventoryUI {
         const sx = bpX + padding + col * (slotSize + padding);
         const sy = bpY + 30 + padding + row * (slotSize + padding);
         if (mx >= sx && mx < sx + slotSize && my >= sy && my < sy + slotSize) {
-          return { type: 'backpack', index: i };
+          return { type: "backpack", index: i };
         }
       }
     }
@@ -84,7 +95,7 @@ export class InventoryUI {
     for (let i = 0; i < HOTBAR_SIZE; i++) {
       const sx = hotbarX + padding + i * (slotSize + padding);
       if (mx >= sx && mx < sx + slotSize && my >= hotbarY && my < hotbarY + slotSize) {
-        return { type: 'hotbar', index: i };
+        return { type: "hotbar", index: i };
       }
     }
 
@@ -111,7 +122,14 @@ export class InventoryUI {
     }
   }
 
-  private renderHotbar(ctx: CanvasRenderingContext2D, inventory: Inventory, screenW: number, screenH: number, slotSize: number, padding: number): void {
+  private renderHotbar(
+    ctx: CanvasRenderingContext2D,
+    inventory: Inventory,
+    screenW: number,
+    screenH: number,
+    slotSize: number,
+    padding: number,
+  ): void {
     const hotbarW = HOTBAR_SIZE * (slotSize + padding) + padding;
     const hotbarX = (screenW - hotbarW) / 2;
     const hotbarY = screenH - slotSize - padding - 10;
@@ -134,7 +152,7 @@ export class InventoryUI {
       // Slot background
       ctx.fillStyle = selected ? COLORS.slotSelected : COLORS.slotBg;
       ctx.fillRect(sx, hotbarY, slotSize, slotSize);
-      ctx.strokeStyle = selected ? '#FF0000' : 'rgba(100,100,140,0.5)';
+      ctx.strokeStyle = selected ? COLORS.gold : "rgba(100,100,140,0.5)";
       ctx.lineWidth = selected ? 2 : 1;
       ctx.strokeRect(sx, hotbarY, slotSize, slotSize);
 
@@ -145,13 +163,20 @@ export class InventoryUI {
       }
 
       // Key label
-      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.fillStyle = "rgba(255,255,255,0.4)";
       ctx.font = '9px "Courier New", monospace';
       ctx.fillText(`${(i + 1) % 10}`, sx + 2, hotbarY + 10);
     }
   }
 
-  private renderBackpack(ctx: CanvasRenderingContext2D, inventory: Inventory, screenW: number, screenH: number, slotSize: number, padding: number): void {
+  private renderBackpack(
+    ctx: CanvasRenderingContext2D,
+    inventory: Inventory,
+    screenW: number,
+    screenH: number,
+    slotSize: number,
+    padding: number,
+  ): void {
     const cols = 6;
     const rows = Math.ceil(BACKPACK_SIZE / cols);
     const bpW = cols * (slotSize + padding) + padding;
@@ -160,7 +185,7 @@ export class InventoryUI {
     const bpY = (screenH - bpH) / 2 - 40;
 
     // Background
-    ctx.fillStyle = 'rgba(15, 15, 30, 0.95)';
+    ctx.fillStyle = "rgba(15, 15, 30, 0.95)";
     ctx.beginPath();
     ctx.roundRect(bpX - 8, bpY - 8, bpW + 16, bpH + 16, 10);
     ctx.fill();
@@ -173,9 +198,9 @@ export class InventoryUI {
     // Title
     ctx.fillStyle = COLORS.gold;
     ctx.font = 'bold 14px "Courier New", monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('商城 (Q关闭)', bpX + bpW / 2, bpY + 18);
-    ctx.textAlign = 'left';
+    ctx.textAlign = "center";
+    ctx.fillText("背包 (Q关闭)", bpX + bpW / 2, bpY + 18);
+    ctx.textAlign = "left";
 
     for (let i = 0; i < BACKPACK_SIZE; i++) {
       const col = i % cols;
@@ -183,11 +208,11 @@ export class InventoryUI {
       const sx = bpX + padding + col * (slotSize + padding);
       const sy = bpY + 30 + padding + row * (slotSize + padding);
 
-      const isHover = this.hoverSlot?.type === 'backpack' && this.hoverSlot.index === i;
+      const isHover = this.hoverSlot?.type === "backpack" && this.hoverSlot.index === i;
 
       ctx.fillStyle = isHover ? COLORS.slotHover : COLORS.slotBg;
       ctx.fillRect(sx, sy, slotSize, slotSize);
-      ctx.strokeStyle = 'rgba(100,100,140,0.5)';
+      ctx.strokeStyle = "rgba(100,100,140,0.5)";
       ctx.lineWidth = 1;
       ctx.strokeRect(sx, sy, slotSize, slotSize);
 
@@ -210,16 +235,16 @@ export class InventoryUI {
     if (item.count > 1) {
       ctx.fillStyle = COLORS.white;
       ctx.font = 'bold 10px "Courier New", monospace';
-      ctx.textAlign = 'right';
+      ctx.textAlign = "right";
       ctx.fillText(`${item.count}`, x + size - 2, y + size - 2);
-      ctx.textAlign = 'left';
+      ctx.textAlign = "left";
     }
 
     // Item name tooltip on hover
-    ctx.fillStyle = 'rgba(200,200,200,0.7)';
+    ctx.fillStyle = "rgba(200,200,200,0.7)";
     ctx.font = '8px "Courier New", monospace';
-    ctx.textAlign = 'center';
+    ctx.textAlign = "center";
     ctx.fillText(item.name, x + size / 2, y + size - 1);
-    ctx.textAlign = 'left';
+    ctx.textAlign = "left";
   }
 }
