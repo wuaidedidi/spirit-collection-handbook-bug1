@@ -100,7 +100,7 @@ export class HUD {
     ctx.fillStyle = COLORS.hpBg;
     ctx.fillRect(hpBarX, hpBarY, hpBarW, hpBarH);
 
-    const hpColor = hpRatio > 0.5 ? COLORS.hpRed : hpRatio > 0.2 ? '#FFC107' : COLORS.hpGreen;
+    const hpColor = hpRatio > 0.5 ? COLORS.hpGreen : hpRatio > 0.2 ? '#FFC107' : COLORS.hpRed;
     ctx.fillStyle = hpColor;
     ctx.fillRect(hpBarX, hpBarY, hpBarW * hpRatio, hpBarH);
 

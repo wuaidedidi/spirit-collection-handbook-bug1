@@ -1,7 +1,7 @@
-import { Vector2, AABB } from '../utils/math';
+import { Vector2, AABB } from "../utils/math";
 
-export type Direction = 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w' | 'nw';
-export type AnimationName = 'idle' | 'move' | 'attack' | 'hurt' | 'die';
+export type Direction = "n" | "ne" | "e" | "se" | "s" | "sw" | "w" | "nw";
+export type AnimationName = "idle" | "move" | "attack" | "hurt" | "die";
 
 export interface EntityStats {
   hp: number;
@@ -26,6 +26,7 @@ export class Entity {
   public animationTimer: number;
   public isAlive: boolean;
   public stats: EntityStats;
+  public invincibleTime: number = 0;
 
   constructor(x: number = 0, y: number = 0, width: number = 16, height: number = 16) {
     this.id = `entity_${nextEntityId++}`;
@@ -33,8 +34,8 @@ export class Entity {
     this.y = y;
     this.width = width;
     this.height = height;
-    this.direction = 's';
-    this.currentAnimation = 'idle';
+    this.direction = "s";
+    this.currentAnimation = "idle";
     this.animationFrame = 0;
     this.animationTimer = 0;
     this.isAlive = true;
@@ -51,6 +52,9 @@ export class Entity {
   public animationSpeed: number = 6; // frames per second, overridden by sprite animation speed
 
   update(dt: number): void {
+    if (this.invincibleTime > 0) {
+      this.invincibleTime -= dt;
+    }
     this.animationTimer += dt;
     const frameDuration = 1.0 / this.animationSpeed;
     if (this.animationTimer >= frameDuration) {
@@ -61,15 +65,16 @@ export class Entity {
 
   takeDamage(amount: number): void {
     if (!this.isAlive) return;
+    if (this.invincibleTime > 0) return;
     this.stats.hp -= amount;
     if (this.stats.hp <= 0) {
       this.stats.hp = 0;
       this.isAlive = false;
-      this.currentAnimation = 'die';
+      this.currentAnimation = "die";
       this.animationFrame = 0;
       this.animationTimer = 0;
     } else {
-      this.currentAnimation = 'hurt';
+      this.currentAnimation = "hurt";
       this.animationFrame = 0;
       this.animationTimer = 0;
     }
