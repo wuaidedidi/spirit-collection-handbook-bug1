@@ -49,6 +49,32 @@ export class CombatSystem {
       }
     }
 
+    // Wild creatures attack active pet if pet is closer than player
+    for (const creature of creatures) {
+      if (!creature.isAlive || creature.isCaptured || creature.isPet) continue;
+      if (creature.attackCooldown > 0) continue;
+
+      // Check if there's an active pet that is closer than player
+      if (player.activePetIndex >= 0 && player.activePetIndex < player.pets.length) {
+        const activePet = player.pets[player.activePetIndex];
+        if (activePet.isAlive) {
+          const distToPet = creature.distanceTo(activePet);
+          const distToPlayer = creature.distanceTo(player);
+          
+          // If pet is closer than player and in attack range, attack the pet
+          if (distToPet <= creature.stats.attackRange && distToPet < distToPlayer) {
+            activePet.takeDamage(creature.stats.attack);
+            if (creature.onDamageDealt) {
+              creature.onDamageDealt(activePet.x, activePet.y - 20, creature.stats.attack);
+            }
+            creature.attackCooldown = creature.stats.attackInterval;
+            creature.animationFrame = 0;
+            creature.animationTimer = 0;
+          }
+        }
+      }
+    }
+
     // Remove dead creatures after die animation
     for (const creature of creatures) {
       if (!creature.isAlive && creature.currentAnimation === 'die') {

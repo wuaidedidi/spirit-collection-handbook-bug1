@@ -1,7 +1,7 @@
-import { Player } from '../entities/Player';
-import { PetSystem } from '../systems/PetSystem';
-import { SpriteAtlas } from '../assets/SpriteTypes';
-import { COLORS, CREATURE_NAMES, CreatureType } from '../utils/constants';
+import { Player } from "../entities/Player";
+import { PetSystem } from "../systems/PetSystem";
+import { SpriteAtlas } from "../assets/SpriteTypes";
+import { COLORS, CREATURE_NAMES, CreatureType } from "../utils/constants";
 
 export class PetPanelUI {
   private atlas: SpriteAtlas;
@@ -35,9 +35,9 @@ export class PetPanelUI {
     // Title
     ctx.fillStyle = COLORS.gold;
     ctx.font = 'bold 11px "Courier New", monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('宠物', px + panelW / 2, py + 16);
-    ctx.textAlign = 'left';
+    ctx.textAlign = "center";
+    ctx.fillText("宠物", px + panelW / 2, py + 16);
+    ctx.textAlign = "left";
 
     for (let i = 0; i < pets.length; i++) {
       const pet = pets[i];
@@ -45,7 +45,7 @@ export class PetPanelUI {
       const isActive = i === player.activePetIndex;
 
       // Pet row background
-      ctx.fillStyle = isActive ? 'rgba(255,215,0,0.1)' : 'rgba(40,40,60,0.6)';
+      ctx.fillStyle = isActive ? "rgba(255,215,0,0.1)" : "rgba(40,40,60,0.6)";
       ctx.beginPath();
       ctx.roundRect(px + 4, iy, panelW - 8, petH, 4);
       ctx.fill();
@@ -63,8 +63,14 @@ export class PetPanelUI {
       if (creatureSheet) {
         ctx.drawImage(
           creatureSheet.canvas,
-          0, 0, 16, 16, // idle frame 0
-          px + 6, iy + 6, 64, 64
+          0,
+          0,
+          16,
+          16, // idle frame 0
+          px + 6,
+          iy + 6,
+          64,
+          64,
         );
       }
 
@@ -83,11 +89,11 @@ export class PetPanelUI {
 
       ctx.fillStyle = COLORS.hpBg;
       ctx.fillRect(hpBarX, hpBarY, hpBarW, hpBarH);
-      ctx.fillStyle = hpRatio > 0.5 ? COLORS.hpGreen : hpRatio > 0.2 ? '#FFC107' : COLORS.hpRed;
-      ctx.fillRect(hpBarX + hpBarW * hpRatio, hpBarY, hpBarW * (1 - hpRatio), hpBarH);
+      ctx.fillStyle = hpRatio > 0.5 ? COLORS.hpGreen : hpRatio > 0.2 ? "#FFC107" : COLORS.hpRed;
+      ctx.fillRect(hpBarX, hpBarY, hpBarW * hpRatio, hpBarH);
 
       // HP text
-      ctx.fillStyle = '#ccc';
+      ctx.fillStyle = "#ccc";
       ctx.font = '10px "Courier New", monospace';
       ctx.fillText(`HP:${pet.stats.hp}/${pet.stats.maxHp}`, hpBarX, hpBarY + 22);
 
@@ -98,13 +104,13 @@ export class PetPanelUI {
       if (!pet.isAlive) {
         const cd = petSystem.getFaintCooldown(pet.id);
         if (cd > 0) {
-          ctx.fillStyle = 'rgba(0,0,0,0.5)';
+          ctx.fillStyle = "rgba(0,0,0,0.5)";
           ctx.fillRect(px + 4, iy, panelW - 8, petH);
-          ctx.fillStyle = '#FF5252';
+          ctx.fillStyle = "#FF5252";
           ctx.font = '10px "Courier New", monospace';
-          ctx.textAlign = 'center';
-          ctx.fillText(`恢复中 ${Math.ceil(cd * 60)}s`, px + panelW / 2, iy + petH / 2 + 4);
-          ctx.textAlign = 'left';
+          ctx.textAlign = "center";
+          ctx.fillText(`恢复中 ${Math.ceil(cd)}s`, px + panelW / 2, iy + petH / 2 + 4);
+          ctx.textAlign = "left";
         }
       }
 
@@ -112,7 +118,7 @@ export class PetPanelUI {
       if (isActive && pet.isAlive) {
         ctx.fillStyle = COLORS.gold;
         ctx.font = '10px "Courier New", monospace';
-        ctx.fillText('出战中', px + panelW - 52, iy + 66);
+        ctx.fillText("出战中", px + panelW - 52, iy + 66);
       }
     }
   }
