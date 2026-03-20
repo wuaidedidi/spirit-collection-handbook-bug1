@@ -1,9 +1,9 @@
-import { Player } from '../entities/Player';
-import { Inventory } from '../systems/Inventory';
-import { ShopSystem } from '../systems/ShopSystem';
-import { CombatSystem } from '../systems/CombatSystem';
-import { SpriteAtlas } from '../assets/SpriteTypes';
-import { COLORS, BallType } from '../utils/constants';
+import { Player } from "../entities/Player";
+import { Inventory } from "../systems/Inventory";
+import { ShopSystem } from "../systems/ShopSystem";
+import { CombatSystem } from "../systems/CombatSystem";
+import { SpriteAtlas } from "../assets/SpriteTypes";
+import { COLORS, BallType } from "../utils/constants";
 
 export class ShopUI {
   private atlas: SpriteAtlas;
@@ -34,11 +34,11 @@ export class ShopUI {
     const py = (screenH - panelH) / 2;
 
     // Background overlay
-    ctx.fillStyle = 'rgba(0,0,0,0.6)';
+    ctx.fillStyle = "rgba(0,0,0,0.6)";
     ctx.fillRect(0, 0, screenW, screenH);
 
     // Panel
-    ctx.fillStyle = 'rgba(15, 15, 35, 0.97)';
+    ctx.fillStyle = "rgba(15, 15, 35, 0.97)";
     ctx.beginPath();
     ctx.roundRect(px, py, panelW, panelH, 12);
     ctx.fill();
@@ -51,14 +51,14 @@ export class ShopUI {
     // Title
     ctx.fillStyle = COLORS.gold;
     ctx.font = 'bold 16px "Courier New", monospace';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('背  包', px + panelW / 2, py + 22);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("商  城", px + panelW / 2, py + 22);
 
     // Subtitle
-    ctx.fillStyle = 'rgba(200,200,200,0.5)';
+    ctx.fillStyle = "rgba(200,200,200,0.5)";
     ctx.font = '10px "Courier New", monospace';
-    ctx.fillText('按 M 关闭', px + panelW / 2, py + 40);
+    ctx.fillText("按 M 关闭", px + panelW / 2, py + 40);
 
     // Notification message
     if (this.notification) {
@@ -70,11 +70,11 @@ export class ShopUI {
       ctx.globalAlpha = 1;
     }
 
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'alphabetic';
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
 
     // Separator line
-    ctx.strokeStyle = 'rgba(255,215,0,0.2)';
+    ctx.strokeStyle = "rgba(255,215,0,0.2)";
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(px + 16, py + 52);
@@ -92,7 +92,7 @@ export class ShopUI {
       const iy = startY + i * (itemH + itemGap);
 
       // Item row background
-      ctx.fillStyle = 'rgba(40, 40, 65, 0.8)';
+      ctx.fillStyle = "rgba(40, 40, 65, 0.8)";
       ctx.beginPath();
       ctx.roundRect(px + 12, iy, panelW - 24, itemH, 8);
       ctx.fill();
@@ -106,16 +106,16 @@ export class ShopUI {
 
       // Item info (left side)
       const infoX = px + 64;
-      ctx.textBaseline = 'middle';
+      ctx.textBaseline = "middle";
 
       ctx.fillStyle = COLORS.white;
       ctx.font = 'bold 13px "Courier New", monospace';
       ctx.fillText(item.name, infoX, iy + 18);
 
-      ctx.fillStyle = '#bbb';
+      ctx.fillStyle = "#bbb";
       ctx.font = '11px "Courier New", monospace';
       ctx.fillText(`价格: ${item.price}金币  捕捉率: ${(item.catchRate * 100).toFixed(0)}%`, infoX, iy + 36);
-      ctx.fillText(`限购: ${item.maxBuy === 999 ? '无限' : item.maxBuy + '个'}`, infoX, iy + 52);
+      ctx.fillText(`限购: ${item.maxBuy === 999 ? "无限" : item.maxBuy + "个"}`, infoX, iy + 52);
 
       // Right side: quantity controls + buy button (vertically centered)
       const rightX = px + panelW - 100;
@@ -126,20 +126,20 @@ export class ShopUI {
       const qtyY = rowCenterY - 14;
 
       // Minus button [-]
-      ctx.fillStyle = 'rgba(60, 60, 90, 0.9)';
+      ctx.fillStyle = "rgba(60, 60, 90, 0.9)";
       ctx.beginPath();
       ctx.roundRect(rightX - 20, qtyY - btnSize / 2, btnSize, btnSize, 4);
       ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+      ctx.strokeStyle = "rgba(255,255,255,0.3)";
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.roundRect(rightX - 20, qtyY - btnSize / 2, btnSize, btnSize, 4);
       ctx.stroke();
       ctx.fillStyle = COLORS.white;
       ctx.font = 'bold 14px "Courier New", monospace';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('-', rightX - 20 + btnSize / 2, qtyY);
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("-", rightX - 20 + btnSize / 2, qtyY);
 
       // Quantity display
       ctx.fillStyle = COLORS.uiText;
@@ -147,37 +147,46 @@ export class ShopUI {
       ctx.fillText(`x${this.quantities[i]}`, rightX + 18, qtyY);
 
       // Plus button [+]
-      ctx.fillStyle = 'rgba(60, 60, 90, 0.9)';
+      ctx.fillStyle = "rgba(60, 60, 90, 0.9)";
       ctx.beginPath();
       ctx.roundRect(rightX + 38, qtyY - btnSize / 2, btnSize, btnSize, 4);
       ctx.fill();
-      ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+      ctx.strokeStyle = "rgba(255,255,255,0.3)";
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.roundRect(rightX + 38, qtyY - btnSize / 2, btnSize, btnSize, 4);
       ctx.stroke();
       ctx.fillStyle = COLORS.white;
       ctx.font = 'bold 14px "Courier New", monospace';
-      ctx.fillText('+', rightX + 38 + btnSize / 2, qtyY);
+      ctx.fillText("+", rightX + 38 + btnSize / 2, qtyY);
 
       // Buy button (centered at rowCenterY + 14)
       const buyY = rowCenterY + 14;
       const buyW = 60;
       const buyH = 24;
-      ctx.fillStyle = player.gold >= item.price * this.quantities[i] ? '#4CAF50' : '#666';
+      ctx.fillStyle = player.gold >= item.price * this.quantities[i] ? "#4CAF50" : "#666";
       ctx.beginPath();
       ctx.roundRect(rightX - 10, buyY - buyH / 2, buyW, buyH, 5);
       ctx.fill();
       ctx.fillStyle = COLORS.white;
       ctx.font = 'bold 12px "Courier New", monospace';
-      ctx.fillText('购买', rightX - 10 + buyW / 2, buyY);
+      ctx.fillText("购买", rightX - 10 + buyW / 2, buyY);
 
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'alphabetic';
+      ctx.textAlign = "left";
+      ctx.textBaseline = "alphabetic";
     }
   }
 
-  handleClick(mx: number, my: number, shop: ShopSystem, player: Player, inventory: Inventory, combat: CombatSystem, screenW: number, screenH: number): boolean {
+  handleClick(
+    mx: number,
+    my: number,
+    shop: ShopSystem,
+    player: Player,
+    inventory: Inventory,
+    combat: CombatSystem,
+    screenW: number,
+    screenH: number,
+  ): boolean {
     if (!shop.isOpen) return false;
 
     const panelW = 340;
@@ -216,13 +225,13 @@ export class ShopUI {
       if (mx >= rightX - 10 && mx < rightX - 10 + buyW && my >= buyY - buyH / 2 && my < buyY + buyH / 2) {
         const totalCost = items[i].price * this.quantities[i];
         if (player.gold < totalCost) {
-          this.showNotification(`金币不足！需要${totalCost}，当前${player.gold}`, '#FF5252');
+          this.showNotification(`金币不足！需要${totalCost}，当前${player.gold}`, "#FF5252");
         } else {
           const success = shop.buyItem(player, inventory, items[i].type as BallType, this.quantities[i], combat);
           if (success) {
-            this.showNotification(`购买成功！${this.quantities[i]}个${items[i].name} -${totalCost}金币`, '#4CAF50');
+            this.showNotification(`购买成功！${this.quantities[i]}个${items[i].name} -${totalCost}金币`, "#4CAF50");
           } else {
-            this.showNotification('背包已满，无法购买！', '#FF9800');
+            this.showNotification("背包已满，无法购买！", "#FF9800");
           }
         }
         return true;
