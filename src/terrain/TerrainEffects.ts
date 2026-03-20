@@ -26,7 +26,7 @@ export class TerrainEffects {
 
     // Volcano lava damage
     const tile = chunkManager.getTileAt(player.x, player.y);
-    if (tile && tile.damageZone) {
+    if (tile && tile.damageZone && player.isAlive) {
       this.damageTimer += dt;
       if (this.damageTimer >= 1.0) {
         this.damageTimer -= 1.0;
@@ -39,7 +39,7 @@ export class TerrainEffects {
     }
 
     // Dungeon spike traps (1s cooldown)
-    if (tile && tile.trap) {
+    if (tile && tile.trap && player.isAlive) {
       this.spikeTimer += dt;
       if (this.spikeTimer >= 1.0) {
         this.spikeTimer -= 1.0;
@@ -51,7 +51,7 @@ export class TerrainEffects {
     }
 
     // Dungeon falling rock traps
-    if (tile && tile.fallingRock) {
+    if (tile && tile.fallingRock && player.isAlive) {
       this.fallingRockTimer += dt;
       if (this.fallingRockTimer >= 1.5) {
         this.fallingRockTimer -= 1.5;
